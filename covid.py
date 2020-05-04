@@ -1,5 +1,5 @@
 
-import json
+import json, csv
 import requests
 import time
 
@@ -15,30 +15,25 @@ headers = {
     'accept-language': 'en,en-US;q=0.9,fr-FR;q=0.8,fr;q=0.7,ar-EG;q=0.6,ar;q=0.5,my-ZG;q=0.4,my;q=0.3',
 }
 
-response = requests.get('https://dashboards-dev.sprinklr.com/data/9043/global-covid19-who-gis.json', headers=headers)
-print(response.status_code)
+# response = requests.get('https://covid.ourworldindata.org/data/owid-covid-data.csv', headers=headers)
+# print(response.status_code)
 
-with open('covid_who.json', 'w') as e:
-	e.write(response.text)
+fname = 'owid-covid-data.csv'
 
-with open('covid_who.json', 'r') as e:
-	data = json.loads(e.read())
+# with open(fname, 'w') as e:
+#   e.write(response.text)
 
-rows = data['rows']
-print(len(rows))
+with open(fname, 'r') as e:
+    data = csv.DictReader(e)
 
-all_countries = {}
+    for row in data:
+        print(row)
+        date = row['date']
+        total_cases = row['total_cases']
+        total_deaths = row['total_deaths']
 
-for row in rows:
-	epoch = row[0]
-	country = row[1]
-	day = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(epoch))
-	# print(day, end=' ')
-	if not all_countries.get(country):
-		all_countries[country] = []
-	all_countries[country].append(country)
+    print(data)
 
-print(all_countries)
 
 
 
