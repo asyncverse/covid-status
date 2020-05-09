@@ -3,6 +3,7 @@ import json, csv
 import requests
 import time
 
+
 headers = {
     'authority': 'dashboards-dev.sprinklr.com',
     'accept': 'application/json, text/plain, */*',
@@ -15,24 +16,61 @@ headers = {
     'accept-language': 'en,en-US;q=0.9,fr-FR;q=0.8,fr;q=0.7,ar-EG;q=0.6,ar;q=0.5,my-ZG;q=0.4,my;q=0.3',
 }
 
-# response = requests.get('https://covid.ourworldindata.org/data/owid-covid-data.csv', headers=headers)
+# response = requests.get('https://pomber.github.io/covid19/timeseries.json', headers=headers)
 # print(response.status_code)
 
-fname = 'owid-covid-data.csv'
+fname = 'pomber_data.json'
 
 # with open(fname, 'w') as e:
 #   e.write(response.text)
 
+def average(lst):
+    return sum(lst)/len(lst)
+
+
 with open(fname, 'r') as e:
-    data = csv.DictReader(e)
+    data = json.loads(e.read())
 
-    for row in data:
-        print(row)
-        date = row['date']
-        total_cases = row['total_cases']
-        total_deaths = row['total_deaths']
 
-    print(data)
+for row in data:
+    print(row), len(data[row])
+    country_data = sorted(data[row], key= lambda x: x['date'])
+    last_week = country_data[-8:]
+    change_rates = []
+    prev_active_cases = 0
+
+    for day in last_week:
+        active_cases = day['confirmed'] - (day['recovered'] + day['deaths'])
+        if prev_active_cases:
+            rate = active_cases / prev_active_cases
+            change_rates.append(rate)
+        print(active_cases, end=' ')
+        prev_active_cases = active_cases
+
+    print()
+    print(average(change_rates))
+
+
+# print(data)
+
+# ug = data['Uganda']
+# print(ug)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
