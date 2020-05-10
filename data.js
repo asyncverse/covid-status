@@ -125,7 +125,7 @@ get_data = function() {
             console.log(rates_copy)
             count_bad = rates_copy.length
 
-            document.getElementById("stats").innerHTML = `<p> improving: ${count_good} &nbsp;&nbsp;&nbsp; Detoriating: ${count_bad}</p>`;
+            document.getElementById("stats").innerHTML = `<p> improving: ${count_good} &nbsp;&nbsp;&nbsp; Deteriorating: ${count_bad}</p>`;
 
 
         }).catch(function(error) {});
