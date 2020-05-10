@@ -60,7 +60,8 @@ get_data = function() {
         })
         .then(data => {
             console.log(data);
-            ave_rates = generate_rates(data);
+            active_nums = generate_rates(data)[0];
+            ave_rates = generate_rates(data)[1];
             rates_list = Object.values(ave_rates)
             // console.log(rates_list)
             highest = _.max(rates_list)
@@ -90,6 +91,7 @@ get_data = function() {
                 data_objs.push({
                     'country': cn,
                     'rate': cn_rate,
+                    'active': active_nums[cn],
                     'pct': pct,
                     // 'diff': pct,
                     // 'color': getColorForPercentage(pct),
@@ -97,13 +99,19 @@ get_data = function() {
                 })
             }
 
-            html = ''
-            data_objs.forEach(function(e, i) {
-                html += "<tr>" + "<td>" + e.country + "</td>" +
-                    "<td>" + e.rate + "</td>" +
-                    // "<td>" + e.diff + "</td>" + 
-                    `<td style='background-color:${e.color};'>` + e.pct + "</td>" +
+            html =  "<tr>" + 
+	            		"<td> COUNTRY</td>" +
+	                    "<td> ACTIVE CASES </td>" + 
+	                    "<td> 7 DAY AVE RATE</td>" +
+	                    "<td> COLOR SCALE </td>" +
                     "</tr>";
+            data_objs.forEach(function(e, i) {
+                html += "<tr>" + 
+                			"<td>" + e.country + "</td>" +
+		                    "<td>" + e.active + "</td>" + 
+		                    "<td>" + e.rate + "</td>" +
+		                    `<td style='background-color:${e.color};'>` + e.pct + "</td>" +
+	                    "</tr>";
             })
             document.getElementById("covid").innerHTML = html;
 
@@ -131,6 +139,7 @@ average = function(nums) {
 
 generate_rates = function(data) {
     average_rates = {}
+    active_nums = {}
     for (const country in data) {
         // console.log(country)
         country_data = data[country]
@@ -151,8 +160,9 @@ generate_rates = function(data) {
         }
         // console.log(average(rates));
         average_rates[country] = average(rates)
+        active_nums[country] = active
     }
-    return average_rates;
+    return [active_nums, average_rates];
 }
 
 
