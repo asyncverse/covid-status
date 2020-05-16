@@ -76,26 +76,24 @@ get_data = function () {
 		                    + `<td>${e.active}</td>`
 		                    + `<td>${e.rate}</td>`
 		                    // `<td style='background-color:${e.color};'>` + e.pct + "</td>" +
-		                    `<td style='background-color:${e.color};'>` + "</td>" +
-	                    "</tr>";
-            })
-            document.getElementById("covid").innerHTML = html;
+		                    + `<td style='background-color:${e.color};'>` + '</td>'
+	                    + '</tr>';
+      });
+      document.getElementById('covid').innerHTML = html;
 
-            rates_copy = [...rates_list]
-            rates_copy = rates_copy.filter(improving)
-            console.log(rates_copy)
-            count_good = rates_copy.length
+      rates_copy = [...rates_list];
+      rates_copy = rates_copy.filter(improving);
+      console.log(rates_copy);
+      count_good = rates_copy.length;
 
-            rates_copy = [...rates_list]
-            rates_copy = rates_copy.filter(degrading)
-            console.log(rates_copy)
-            count_bad = rates_copy.length
+      rates_copy = [...rates_list];
+      rates_copy = rates_copy.filter(degrading);
+      console.log(rates_copy);
+      count_bad = rates_copy.length;
 
-            document.getElementById("stats").innerHTML = `<p> Improving: ${count_good} &nbsp;&nbsp;&nbsp; Worsening: ${count_bad}</p>`;
-
-
-        }).catch(function(error) {});
-}
+      document.getElementById('stats').innerHTML = `<p> improving: ${count_good} &nbsp;&nbsp;&nbsp; Deteriorating: ${count_bad}</p>`;
+    }).catch((error) => {});
+};
 
 
 average = function (nums) {
