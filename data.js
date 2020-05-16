@@ -245,5 +245,3 @@ var getColorPercent = function (pct) {
   }
   return color;
 };
-
-getColorPercent('#loadbar_storage', 100, 1500);
