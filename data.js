@@ -14,8 +14,6 @@ function degrading(a) {
 
 function get_pct(value_diff, limit_diff) {
   percentage = (value_diff / limit_diff) * 100;
-  // pctg =  start + percentage/2;
-  // console.log(value_diff, )
   return percentage;
 }
 
@@ -29,7 +27,7 @@ get_data = function () {
       active_nums = generate_rates(data)[0];
       ave_rates = generate_rates(data)[1];
       rates_list = Object.values(ave_rates);
-      // console.log(rates_list)
+      console.log(rates_list)
       highest = _.max(rates_list);
       lowest = _.min(rates_list);
       // console.log(lowest, highest)
@@ -37,7 +35,7 @@ get_data = function () {
       neg_diff = 1 - lowest;
 
       for (const cn in ave_rates) {
-        console.log(cn);
+        // console.log(cn);
         cn_rate = ave_rates[cn];
 
         if (cn_rate > 1) {
@@ -51,7 +49,7 @@ get_data = function () {
           pct = get_pct(value_diff, limit_diff);
           pct /= 2;
         }
-        console.log(pct, value_diff, limit_diff, highest, lowest, cn_rate);
+        console.log(cn, pct, value_diff, limit_diff, highest, lowest, cn_rate);
 
         data_objs.push({
           country: cn,
@@ -64,35 +62,45 @@ get_data = function () {
         });
       }
 
+      // console.log(data_objs);
+
       html = '<tr>'
-	            		+ '<td> COUNTRY</td>'
-	                    + '<td> ACTIVE CASES </td>'
-	                    + '<td> 7 DAY AVE RATE</td>'
-	                    + '<td> % rate COLOR SCALE </td>'
-                    + '</tr>';
+        + '<td> COUNTRY</td>'
+        + '<td> ACTIVE CASES </td>'
+        + '<td> 7 DAY AVE RATE</td>'
+        + '<td> % rate COLOR SCALE </td>'
+        + '</tr>';
+
+      // console.log(html);
+      // console.log(data_objs.length);
+
       data_objs.forEach((e, i) => {
+        // console.log(e);
         html += `${'<tr>'
-                			+ '<td>'}${e.country}</td>`
-		                    + `<td>${e.active}</td>`
-		                    + `<td>${e.rate}</td>`
-		                    // `<td style='background-color:${e.color};'>` + e.pct + "</td>" +
-		                    + `<td style='background-color:${e.color};'>` + '</td>'
-	                    + '</tr>';
+          + '<td>'}${e.country}</td>`
+          + `<td>${e.active}</td>`
+          + `<td>${e.rate}</td>`
+          + `<td style='background-color:${e.color};'>` + String(e.pct) + "</td>"
+          // + `<td style='background-color:${e.color};'>` + '</td>'
+          + '</tr>';
       });
+
+      // console.log(html);
+
       document.getElementById('covid').innerHTML = html;
 
       rates_copy = [...rates_list];
       rates_copy = rates_copy.filter(improving);
-      console.log(rates_copy);
+      // console.log(rates_copy);
       count_good = rates_copy.length;
 
       rates_copy = [...rates_list];
       rates_copy = rates_copy.filter(degrading);
-      console.log(rates_copy);
+      // console.log(rates_copy);
       count_bad = rates_copy.length;
 
       document.getElementById('stats').innerHTML = `<p> improving: ${count_good} &nbsp;&nbsp;&nbsp; Deteriorating: ${count_bad}</p>`;
-    }).catch((error) => {});
+    }).catch((error) => { });
 };
 
 
@@ -109,7 +117,7 @@ generate_rates = function (data) {
     country_data = data[country];
     country_data.sort(compare_dates);
     len_data = country_data.length;
-    last_weeks_data = country_data.slice(len_data - 8, len_data);
+    last_weeks_data = country_data.slice(len_data - 6, len_data);
     //
     rates = [];
     prev_active = null;
@@ -117,7 +125,9 @@ generate_rates = function (data) {
       active = day.confirmed - (day.deaths + day.recovered);
       if (prev_active != null) {
         rate = active / prev_active;
-        rates.push(rate);
+        if (rate != Infinity) {
+          rates.push(rate);
+        }
       }
       prev_active = active;
       // console.log(active);
