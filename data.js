@@ -24,25 +24,34 @@ get_data = function () {
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-      active_nums = generate_rates(data)[0];
-      ave_rates = generate_rates(data)[1];
+      // generate the average rise in cases per country
+      countries_data = generate_rates(data);
+      // extract the results
+      active_nums = countries_data[0];
+      ave_rates = countries_data[1];
+      last_updated = countries_data[2];
+      // get the highest and lowest rate of increase
       rates_list = Object.values(ave_rates);
       console.log(rates_list)
       highest = _.max(rates_list);
       lowest = _.min(rates_list);
-      // console.log(lowest, highest)
+      // worst case scenario is that cases double, which would be an 100% increase
+      // we compare the highest and lowest rates to see how far they are from the worst case scenario
       pos_diff = highest - 1;
       neg_diff = 1 - lowest;
 
+      // iterate through the countries and create the data objects
       for (const cn in ave_rates) {
-        // console.log(cn);
+        // use the country rate of increase
         cn_rate = ave_rates[cn];
 
+        // if there was a rise in cases
         if (cn_rate > 1) {
           limit_diff = pos_diff;
           value_diff = cn_rate - 1;
           pct = get_pct(value_diff, limit_diff);
           pct = 50 + pct / 2;
+          // else, the cases were falling
         } else {
           limit_diff = neg_diff;
           value_diff = cn_rate - lowest;
@@ -56,9 +65,8 @@ get_data = function () {
           rate: cn_rate,
           active: active_nums[cn],
           pct,
-          // 'diff': pct,
-          // 'color': getColorForPercentage(pct),
           color: getColorPercent(pct),
+          last_updated: last_updated[cn] // the last date the data was updated for this country
         });
       }
 
@@ -69,6 +77,7 @@ get_data = function () {
         + '<td> ACTIVE CASES </td>'
         + '<td> 7 DAY AVE RATE</td>'
         + '<td> % rate COLOR SCALE </td>'
+        + '<td> LAST UPDATED </td>'
         + '</tr>';
 
       // console.log(html);
@@ -81,7 +90,7 @@ get_data = function () {
           + `<td>${e.active}</td>`
           + `<td>${e.rate}</td>`
           + `<td style='background-color:${e.color};'>` + String(e.pct) + "</td>"
-          // + `<td style='background-color:${e.color};'>` + '</td>'
+          + `<td>${e.last_updated}</td>`
           + '</tr>';
       });
 
@@ -112,6 +121,7 @@ average = function (nums) {
 generate_rates = function (data) {
   average_rates = {};
   active_nums = {};
+  last_updated = {};
   for (const country in data) {
     // console.log(country)
     country_data = data[country];
@@ -135,8 +145,9 @@ generate_rates = function (data) {
     // console.log(average(rates));
     average_rates[country] = average(rates);
     active_nums[country] = active;
+    last_updated[country] = country_data[len_data - 1].date;
   }
-  return [active_nums, average_rates];
+  return [active_nums, average_rates, last_updated];
 };
 
 
