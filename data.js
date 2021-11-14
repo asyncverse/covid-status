@@ -41,32 +41,32 @@ get_data = function () {
       neg_diff = 1 - lowest;
 
       // iterate through the countries and create the data objects
-      for (const cn in ave_rates) {
+      for (const cntry in ave_rates) {
         // use the country rate of increase
-        cn_rate = ave_rates[cn];
+        cntry_rate = ave_rates[cntry];
 
         // if there was a rise in cases
-        if (cn_rate > 1) {
+        if (cntry_rate > 1) {
           limit_diff = pos_diff;
-          value_diff = cn_rate - 1;
+          value_diff = cntry_rate - 1;
           pct = get_pct(value_diff, limit_diff);
           pct = 50 + pct / 2;
           // else, the cases were falling
         } else {
           limit_diff = neg_diff;
-          value_diff = cn_rate - lowest;
+          value_diff = cntry_rate - lowest;
           pct = get_pct(value_diff, limit_diff);
           pct /= 2;
         }
-        console.log(cn, pct, value_diff, limit_diff, highest, lowest, cn_rate);
+        console.log(cntry, pct, value_diff, limit_diff, highest, lowest, cntry_rate);
 
         data_objs.push({
-          country: cn,
-          rate: cn_rate,
-          active: active_nums[cn],
+          country: cntry,
+          rate: cntry_rate,
+          active: active_nums[cntry],
           pct,
           color: getColorPercent(pct),
-          last_updated: last_updated[cn] // the last date the data was updated for this country
+          last_updated: last_updated[cntry] // the last date the data was updated for this country
         });
       }
 
