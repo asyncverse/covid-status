@@ -58,7 +58,7 @@ get_data = function () {
           pct = get_pct(value_diff, limit_diff);
           pct /= 2;
         }
-        console.log(cntry, pct, value_diff, limit_diff, highest, lowest, cntry_rate);
+        // console.log(cntry, pct, value_diff, limit_diff, highest, lowest, cntry_rate);
 
         data_objs.push({
           country: cntry,
@@ -74,10 +74,10 @@ get_data = function () {
 
       html = '<tr>'
         + '<td> COUNTRY</td>'
-        + '<td> ACTIVE CASES </td>'
-        + '<td> 7 DAY AVE RATE</td>'
-        + '<td> % rate COLOR SCALE </td>'
-        + '<td> LAST UPDATED </td>'
+        + '<td> AVERAGE ACTIVE CASES </td>'
+        + '<td> 14 DAY AVE RATE</td>'
+        + '<td> % rate (+ COLOR SCALE) </td>'
+        + '<td> LAST-UPDATED </td>'
         + '</tr>';
 
       // console.log(html);
@@ -127,16 +127,18 @@ generate_rates = function (data) {
     country_data = data[country];
     country_data.sort(compare_dates);
     len_data = country_data.length;
-    last_weeks_data = country_data.slice(len_data - 6, len_data);
+    last_2_weeks_data = country_data.slice(len_data - 14, len_data); // total will be 15 days
     //
     rates = [];
+    actives = [];
     prev_active = null;
-    for (const day of last_weeks_data) {
+    for (const day of last_2_weeks_data) {
       active = day.confirmed - (day.deaths + day.recovered);
       if (prev_active != null) {
         rate = active / prev_active;
         if (rate != Infinity) {
           rates.push(rate);
+          actives.push(active);
         }
       }
       prev_active = active;
@@ -144,7 +146,7 @@ generate_rates = function (data) {
     }
     // console.log(average(rates));
     average_rates[country] = average(rates);
-    active_nums[country] = active;
+    active_nums[country] = average(actives);
     last_updated[country] = country_data[len_data - 1].date;
   }
   return [active_nums, average_rates, last_updated];
