@@ -21,31 +21,8 @@ function get_pct(value_diff, limit_diff) {
 get_data = function () {
   data_objs = [];
   console.log('data');
-  fetch(data_url, {
-    mode: 'no-cors',
-    headers: {
-      'authority': 'pomber.github.io',
-      'cache-control': 'max-age=0',
-      'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"',
-      'sec-ch-ua-mobile': '?1',
-      'sec-ch-ua-platform': 'Android',
-      'upgrade-insecure-requests': '1',
-      'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Mobile Safari/537.36',
-      'accept': '*/*',
-      'sec-fetch-site': 'none',
-      'sec-fetch-mode': 'navigate',
-      'sec-fetch-user': '?1',
-      'sec-fetch-dest': 'document',
-      'accept-language': 'en-US,en;q=0.9',
-      'referer': 'https://pomber.github.io',
-      'method': 'GET',
-      'path': '/covid19/timeseries.json',
-      'scheme': 'https',
-      'accept-encoding': 'gzip, deflate, br',
-      'if-none-match': 'W/"619f4a76-dc83b2"',
-      'if-modified-since': 'Thu, 25 Nov 2021 08:33:58 GMT',
-    }
-  }).then((response) => response.json())
+  fetch(data_url)
+    .then((response) => response.json())
     .then((data) => {
       console.log(data);
       // generate the average rise in cases per country
