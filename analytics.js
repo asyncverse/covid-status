@@ -5,11 +5,11 @@ function compare_dates(a, b) {
 }
 
 function improving(a) {
-  return a < 1;
+  return a < 0;
 }
 
 function degrading(a) {
-  return a > 1;
+  return a > 0;
 }
 
 function get_pct(value_diff, limit_diff) {
@@ -20,25 +20,10 @@ function get_pct(value_diff, limit_diff) {
 
 get_data = function () {
   data_objs = [];
-  console.log('data', {
-    headers: {
-      'authority': 'pomber.github.io',
-      'pragma': 'no-cache',
-      'cache-control': 'no-cache',
-      'user-agent': 'Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Mobile Safari/537.36',
-      'accept': '*/*',
-      // 'origin': 'http://127.0.0.1:5500',
-      'sec-fetch-site': 'cross-site',
-      'sec-fetch-mode': 'no-cors',
-      'sec-fetch-dest': 'empty',
-      // 'referer': 'http://127.0.0.1:5500/',
-      'accept-language': 'en-US,en;q=0.9'
-    }
-  });
   fetch(data_url)
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
+      // console.log(data);
       // generate the average rise in cases per country
       countries_data = generate_rates(data);
       // extract the results
@@ -47,13 +32,9 @@ get_data = function () {
       last_updated = countries_data[2];
       // get the highest and lowest rate of increase
       rates_list = Object.values(ave_rates);
-      console.log(rates_list)
-      highest = _.max(rates_list);
-      lowest = _.min(rates_list);
+      // console.log(rates_list)
       // worst case scenario is that cases double, which would be an 100% increase
       // we compare the highest and lowest rates to see how far they are from the worst case scenario
-      pos_diff = highest - 1;
-      neg_diff = 1 - lowest;
 
       // iterate through the countries and create the data objects
       for (const cntry in ave_rates) {
@@ -62,25 +43,17 @@ get_data = function () {
 
         // if there was a rise in cases
         if (cntry_rate > 1) {
-          limit_diff = pos_diff;
-          value_diff = cntry_rate - 1;
-          pct = get_pct(value_diff, limit_diff);
-          pct = 50 + pct / 2;
           // else, the cases were falling
         } else {
-          limit_diff = neg_diff;
-          value_diff = cntry_rate - lowest;
-          pct = get_pct(value_diff, limit_diff);
-          pct /= 2;
         }
         // console.log(cntry, pct, value_diff, limit_diff, highest, lowest, cntry_rate);
 
         data_objs.push({
           country: cntry,
-          rate: cntry_rate,
+          rate: Number((cntry_rate).toFixed(3)),
           active: active_nums[cntry],
-          pct,
-          color: getColorPercent(pct),
+          pct: Number((cntry_rate).toFixed(3)),
+          color: getColorPercent(Number((cntry_rate).toFixed(3))),
           last_updated: last_updated[cntry] // the last date the data was updated for this country
         });
       }
@@ -90,7 +63,7 @@ get_data = function () {
       html = '<tr>'
         + '<td> COUNTRY</td>'
         + '<td> AVERAGE ACTIVE CASES </td>'
-        + '<td> 14 DAY AVE RATE</td>'
+        + '<td> 14 DAY %age RATE</td>'
         + '<td> % rate (+ COLOR SCALE) </td>'
         + '<td> LAST-UPDATED </td>'
         + '</tr>';
@@ -109,18 +82,21 @@ get_data = function () {
           + '</tr>';
       });
 
-      // console.log(html);
 
       document.getElementById('covid').innerHTML = html;
 
-      rates_copy = [...rates_list];
+      console.log(ave_rates);
+
+      rates_copy = Object.values(ave_rates);
+      console.log("oiuuo", rates_copy);
+
       rates_copy = rates_copy.filter(improving);
-      // console.log(rates_copy);
+      console.log(rates_copy);
       count_good = rates_copy.length;
 
-      rates_copy = [...rates_list];
+      rates_copy = Object.values(ave_rates);
       rates_copy = rates_copy.filter(degrading);
-      // console.log(rates_copy);
+      console.log(rates_copy);
       count_bad = rates_copy.length;
 
       document.getElementById('stats').innerHTML = `<p> improving: ${count_good} &nbsp;&nbsp;&nbsp; Deteriorating: ${count_bad}</p>`;
@@ -132,36 +108,69 @@ average = function (nums) {
   return nums.reduce((a, b) => (a + b)) / nums.length;
 };
 
+sum = function (nums) {
+  return nums.reduce((a, b) => (a + b), 0);
+};
+
 
 generate_rates = function (data) {
   average_rates = {};
   active_nums = {};
   last_updated = {};
   for (const country in data) {
-    // console.log(country)
+    // get the country data
     country_data = data[country];
+
+    // sort the dates in order
     country_data.sort(compare_dates);
     len_data = country_data.length;
-    last_2_weeks_data = country_data.slice(len_data - 14, len_data); // total will be 15 days
-    //
-    rates = [];
-    actives = [];
+    mid_length = len_data - 14;
+    end_length = len_data - 28;
+    // mid_length = len_data - 30;
+    // end_length = len_data - 60;
+
+    // slice to get data for the last 14 days
+    last_2_weeks_data = country_data.slice(mid_length, len_data);
+    sum_actives = 0;
     prev_active = null;
     for (const day of last_2_weeks_data) {
       active = day.confirmed - (day.deaths + day.recovered);
       if (prev_active != null) {
-        rate = active / prev_active;
-        if (rate != Infinity) {
-          rates.push(rate);
-          actives.push(active);
-        }
+        // increament the total active cases for the country
+        sum_actives += active;
+      } else {
+        // console.log(day.date);
       }
       prev_active = active;
-      // console.log(active);
     }
-    // console.log(average(rates));
-    average_rates[country] = average(rates);
-    active_nums[country] = average(actives);
+
+    // slice to get data for the last 28 days
+    prev_2_weeks_data = country_data.slice(end_length, mid_length);
+    sum_old_actives = 0;
+    prev_active = null;
+    for (const day of prev_2_weeks_data) {
+      active = day.confirmed - (day.deaths + day.recovered);
+      if (prev_active != null) {
+        sum_old_actives += active;
+      } else {
+        // console.log(day.date);
+      }
+      prev_active = active;
+    }
+
+    increase = sum_actives - sum_old_actives;
+    // calculate the average rate of increase
+    if (increase > 0) {
+      percentage_increase = ((increase + sum_old_actives) / sum_old_actives) * 100 - 100;
+    } else {
+      percentage_increase = ((increase + sum_old_actives) / sum_old_actives) * 100 - 100;
+      console.log(country, increase, percentage_increase);
+    }
+    // console.log(country, increase, percentage_increase);
+
+    // console.log(country, percentage_increase, sum(actives), sum(old_actives));
+    average_rates[country] = percentage_increase;
+    active_nums[country] = sum_actives / 14;
     last_updated[country] = country_data[len_data - 1].date;
   }
   return [active_nums, average_rates, last_updated];
@@ -169,103 +178,105 @@ generate_rates = function (data) {
 
 
 const percentColors = [{
-  pct: 0,
+  pct: -100,
   color: '#00FF00',
 }, {
-  pct: 3,
+  pct: -90,
   color: '#12FF00',
 }, {
-  pct: 6,
+  pct: -80,
   color: '#24FF00',
 },
 {
-  pct: 10,
+  pct: -70,
   color: '#47FF00',
 }, {
-  pct: 13,
+  pct: -60,
   color: '#58FF00',
 }, {
-  pct: 16,
+  pct: -50,
   color: '#6AFF00',
 },
 {
-  pct: 20,
+  pct: -40,
   color: '#7CFF00',
 }, {
-  pct: 23,
+  pct: -30,
   color: '#8DFF00',
 }, {
-  pct: 26,
+  pct: -20,
   color: '#9FFF00',
 },
 {
-  pct: 30,
+  pct: -10,
   color: '#B0FF00',
-}, {
-  pct: 33,
+},
+{
+  pct: -9,
   color: '#C2FF00',
 }, {
-  pct: 36,
+  pct: -8,
   color: '#D4FF00',
 },
 {
-  pct: 40,
+  pct: -6,
   color: '#E5FF00',
 }, {
-  pct: 43,
+  pct: -4,
   color: '#F7FF00',
 }, {
-  pct: 46,
+  pct: -2,
   color: '#FFF600',
 },
 {
-  pct: 50,
+  pct: 0,
   color: '#FFE400',
-}, {
-  pct: 53,
+},
+{
+  pct: 2,
   color: '#FFD300',
 }, {
-  pct: 56,
+  pct: 4,
   color: '#FFC100',
 },
 {
-  pct: 60,
+  pct: 6,
   color: '#FFAF00',
 }, {
-  pct: 63,
+  pct: 8,
   color: '#FF9E00',
 }, {
-  pct: 66,
+  pct: 9,
   color: '#FF8C00',
 },
 {
-  pct: 70,
+  pct: 10,
   color: '#FF7B00',
 }, {
-  pct: 73,
+  pct: 20,
   color: '#FF6900',
 }, {
-  pct: 76,
+  pct: 30,
   color: '#FF5700',
 },
 {
-  pct: 80,
+  pct: 40,
   color: '#FF4600',
 }, {
-  pct: 83,
+  pct: 50,
   color: '#FF3400',
 }, {
-  pct: 86,
+  pct: 60,
   color: '#FF2300',
 },
 {
-  pct: 90,
+  pct: 70,
   color: '#FF1100',
 }, {
-  pct: 93,
+  pct: 80,
   color: '#FF0000',
 }, {
-  pct: 96,
+  pct: 90,
   color: '#FF0000',
 },
 {
