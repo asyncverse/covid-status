@@ -20,7 +20,21 @@ function get_pct(value_diff, limit_diff) {
 
 get_data = function () {
   data_objs = [];
-  console.log('data');
+  console.log('data', {
+    headers: {
+      'authority': 'pomber.github.io',
+      'pragma': 'no-cache',
+      'cache-control': 'no-cache',
+      'user-agent': 'Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Mobile Safari/537.36',
+      'accept': '*/*',
+      // 'origin': 'http://127.0.0.1:5500',
+      'sec-fetch-site': 'cross-site',
+      'sec-fetch-mode': 'no-cors',
+      'sec-fetch-dest': 'empty',
+      // 'referer': 'http://127.0.0.1:5500/',
+      'accept-language': 'en-US,en;q=0.9'
+    }
+  });
   fetch(data_url)
     .then((response) => response.json())
     .then((data) => {
