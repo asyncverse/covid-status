@@ -62,7 +62,8 @@ function update(dataPath, outputPath) {
     });
   });
 
-  fs.writeFileSync(outputPath, JSON.stringify(results, null, 2));
+  output_str = 'data = ' + JSON.stringify(results, null, 2) + ';';
+  fs.writeFileSync(outputPath, output_str);
 }
 
 module.exports = update;

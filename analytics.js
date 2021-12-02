@@ -1,5 +1,3 @@
-const data_url = 'https://pomber.github.io/covid19/timeseries.json';
-
 function compare_dates(a, b) {
   return a.date > b.date;
 }
@@ -18,89 +16,85 @@ function get_pct(value_diff, limit_diff) {
 }
 
 
-get_data = function () {
+get_data = function (data) {
   data_objs = [];
-  fetch(data_url)
-    .then((response) => response.json())
-    .then((data) => {
-      // console.log(data);
-      // generate the average rise in cases per country
-      countries_data = generate_rates(data);
-      // extract the results
-      active_nums = countries_data[0];
-      ave_rates = countries_data[1];
-      last_updated = countries_data[2];
-      // get the highest and lowest rate of increase
-      rates_list = Object.values(ave_rates);
-      // console.log(rates_list)
-      // worst case scenario is that cases double, which would be an 100% increase
-      // we compare the highest and lowest rates to see how far they are from the worst case scenario
+  // console.log(data);
+  // generate the average rise in cases per country
+  countries_data = generate_rates(data);
+  // extract the results
+  active_nums = countries_data[0];
+  ave_rates = countries_data[1];
+  last_updated = countries_data[2];
+  // get the highest and lowest rate of increase
+  rates_list = Object.values(ave_rates);
+  // console.log(rates_list)
+  // worst case scenario is that cases double, which would be an 100% increase
+  // we compare the highest and lowest rates to see how far they are from the worst case scenario
 
-      // iterate through the countries and create the data objects
-      for (const cntry in ave_rates) {
-        // use the country rate of increase
-        cntry_rate = ave_rates[cntry];
+  // iterate through the countries and create the data objects
+  for (const cntry in ave_rates) {
+    // use the country rate of increase
+    cntry_rate = ave_rates[cntry];
 
-        // if there was a rise in cases
-        if (cntry_rate > 1) {
-          // else, the cases were falling
-        } else {
-        }
-        // console.log(cntry, pct, value_diff, limit_diff, highest, lowest, cntry_rate);
+    // if there was a rise in cases
+    if (cntry_rate > 1) {
+      // else, the cases were falling
+    } else {
+    }
+    // console.log(cntry, pct, value_diff, limit_diff, highest, lowest, cntry_rate);
 
-        data_objs.push({
-          country: cntry,
-          rate: Number((cntry_rate).toFixed(3)),
-          active: active_nums[cntry],
-          pct: Number((cntry_rate).toFixed(3)),
-          color: getColorPercent(Number((cntry_rate).toFixed(3))),
-          last_updated: last_updated[cntry] // the last date the data was updated for this country
-        });
-      }
+    data_objs.push({
+      country: cntry,
+      rate: Number((cntry_rate).toFixed(3)),
+      active: active_nums[cntry],
+      pct: Number((cntry_rate).toFixed(3)),
+      color: getColorPercent(Number((cntry_rate).toFixed(3))),
+      last_updated: last_updated[cntry] // the last date the data was updated for this country
+    });
+  }
 
-      // console.log(data_objs);
+  // console.log(data_objs);
 
-      html = '<tr>'
-        + '<td> COUNTRY</td>'
-        + '<td> AVERAGE ACTIVE CASES </td>'
-        + '<td> 14 DAY %age RATE</td>'
-        + '<td> % rate (+ COLOR SCALE) </td>'
-        + '<td> LAST-UPDATED </td>'
-        + '</tr>';
+  html = '<tr>'
+    + '<td> COUNTRY</td>'
+    + '<td> AVERAGE ACTIVE CASES </td>'
+    + '<td> 14 DAY %age RATE</td>'
+    + '<td> % rate (+ COLOR SCALE) </td>'
+    + '<td> LAST-UPDATED </td>'
+    + '</tr>';
 
-      // console.log(html);
-      // console.log(data_objs.length);
+  // console.log(html);
+  // console.log(data_objs.length);
 
-      data_objs.forEach((e, i) => {
-        // console.log(e);
-        html += `${'<tr>'
-          + '<td>'}${e.country}</td>`
-          + `<td>${e.active}</td>`
-          + `<td>${e.rate}</td>`
-          + `<td style='background-color:${e.color};'>` + String(e.pct) + "</td>"
-          + `<td>${e.last_updated}</td>`
-          + '</tr>';
-      });
+  data_objs.forEach((e, i) => {
+    // console.log(e);
+    html += `${'<tr>'
+      + '<td>'}${e.country}</td>`
+      + `<td>${e.active}</td>`
+      + `<td>${e.rate}</td>`
+      + `<td style='background-color:${e.color};'>` + String(e.pct) + "</td>"
+      + `<td>${e.last_updated}</td>`
+      + '</tr>';
+  });
 
 
-      document.getElementById('covid').innerHTML = html;
+  document.getElementById('covid').innerHTML = html;
 
-      console.log(ave_rates);
+  console.log(ave_rates);
 
-      rates_copy = Object.values(ave_rates);
-      console.log("oiuuo", rates_copy);
+  rates_copy = Object.values(ave_rates);
+  console.log("oiuuo", rates_copy);
 
-      rates_copy = rates_copy.filter(improving);
-      console.log(rates_copy);
-      count_good = rates_copy.length;
+  rates_copy = rates_copy.filter(improving);
+  console.log(rates_copy);
+  count_good = rates_copy.length;
 
-      rates_copy = Object.values(ave_rates);
-      rates_copy = rates_copy.filter(degrading);
-      console.log(rates_copy);
-      count_bad = rates_copy.length;
+  rates_copy = Object.values(ave_rates);
+  rates_copy = rates_copy.filter(degrading);
+  console.log(rates_copy);
+  count_bad = rates_copy.length;
 
-      document.getElementById('stats').innerHTML = `<p> improving: ${count_good} &nbsp;&nbsp;&nbsp; Deteriorating: ${count_bad}</p>`;
-    }).catch((error) => { });
+  document.getElementById('stats').innerHTML = `<p> improving: ${count_good} &nbsp;&nbsp;&nbsp; Deteriorating: ${count_bad}</p>`;
 };
 
 
