@@ -1,5 +1,12 @@
+function make_date(date) {
+  const myArray = date.split("-");
+  return new Date(myArray[0], myArray[1], myArray[2]);
+}
+
 function compare_dates(a, b) {
-  return a.date > b.date;
+  const d1 = make_date(a.date);
+  const d2 = make_date(b.date);
+  return d1 > d2;
 }
 
 function improving(a) {
