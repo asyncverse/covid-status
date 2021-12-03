@@ -1,11 +1,11 @@
-# on:
-#   workflow_dispatch:
-#   schedule:
-#     - cron: "15 0,2,4,8,12 * * *"
-
 on:
-  push:
-    branches: [master]
+  workflow_dispatch:
+  schedule:
+    - cron: "15 0,2,4,8,12 * * *"
+
+# on:
+#   push:
+#     branches: [master]
 
 jobs:
   extract_job:
