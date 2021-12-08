@@ -2,10 +2,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "15 0,2,4,8,12 * * *"
-
-# on:
-#   push:
-#     branches: [master]
+  push:
+    branches: [master]
 
 jobs:
   extract_job:
@@ -28,6 +26,7 @@ jobs:
           cd main
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git pull --rebase
           git add .
           git diff-index --quiet HEAD || git commit -m "Update json" -a
       - name: Push changes
