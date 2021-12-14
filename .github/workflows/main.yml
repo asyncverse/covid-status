@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: "15 0,2,4,8,12 * * *"
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   extract_job:
@@ -28,7 +28,6 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .
           git diff-index --quiet HEAD || git commit -m "Update json" -a
-          git pull origin master
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
